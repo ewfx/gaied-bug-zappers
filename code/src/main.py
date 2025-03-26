@@ -76,7 +76,7 @@ class EmailProcessor:
     def call_openrouter_deepseek(self, email_text: str) -> dict:
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
-            "Authorization": f"Bearer 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",
+            "Authorization": f"Bearer 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",
             "Content-Type": "application/json",
         }
 
@@ -171,7 +171,7 @@ class EmailProcessor:
     def check_duplicate_mail_or_new_request(email_text):
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
-            "Authorization": "Bearer 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",
+            "Authorization": "Bearer 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",
             "Content-Type": "application/json",
         }
 
@@ -202,7 +202,7 @@ class EmailProcessor:
     def make_prompt_request_for_duplicate_mail(clean_text):
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
-            "Authorization": "Bearer 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",
+            "Authorization": "Bearer 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",
             "Content-Type": "application/json",
         }
 
