@@ -27,9 +27,14 @@ class EmailProcessor:
         self.eml_file_path = eml_file_path
         self.email_content = {}
 
-    def extract_email_content(self, eml_file_path):
-        with open(eml_file_path, 'rb') as f:
-            msg = BytesParser(policy=policy.default).parse(f)
+    def extract_email_content(self, eml_file):
+        if isinstance(eml_file, (str, bytes, os.PathLike)):
+        # File path or bytes input
+         with open(eml_file, 'rb') as file:
+            msg = email.message_from_binary_file(file)
+        elif hasattr(eml_file, 'read'):
+        # Streamlit UploadedFile or file-like object
+            msg = email.message_from_binary_file(eml_file)
 
         self.email_content = {
             'subject': msg['subject'] or '',
@@ -71,7 +76,7 @@ class EmailProcessor:
     def call_openrouter_deepseek(self, email_text: str) -> dict:
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
-            "Authorization": f"Bearer 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",
+            "Authorization": f"Bearer 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",
             "Content-Type": "application/json",
         }
 
@@ -87,7 +92,7 @@ class EmailProcessor:
             1. **Request Classification:**
                 - Analyze the email body and attachments to classify the request into one of the predefined **Request Types** {', '.join(REQUEST_TYPES)} and **Sub-Request Types**:{', '.join(SUB_REQUEST_TYPES)}. 
                 - Identify the primary intent when multiple requests are present, providing a clear classification of the main request.
-                - Justify each classification with a brief explanation.
+                - Give the confidence Score for the output given
 
             2. **Contextual Data Extraction:**
                 - Extract relevant fields from the email and attachments, including:
@@ -148,14 +153,7 @@ class EmailProcessor:
         if sub_request and primary_request in REQUEST_TYPES and sub_request not in SUB_REQUEST_TYPES:
             sub_request = None
 
-        confidence = None
-        if len(lines) > 2:
-            match = re.search(r"Confidence:\s*([\d\.]+)", lines[2])
-            if match:
-                try:
-                    confidence = float(match.group(1))
-                except ValueError:
-                    confidence = None 
+        confidence = lines[2] if len(lines) > 0 else "60"
         Deal_Name=lines[4] if len(lines) > 0 else "Unknown"
         Loan_Amount=lines[5] if len(lines) > 0 else "Unknown"
         Expiration_Date=lines[6] if len(lines) > 0 else "Unknown"                
@@ -173,7 +171,7 @@ class EmailProcessor:
     def check_duplicate_mail_or_new_request(email_text):
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
-            "Authorization": "Bearer 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",
+            "Authorization": "Bearer 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",
             "Content-Type": "application/json",
         }
 
@@ -204,7 +202,7 @@ class EmailProcessor:
     def make_prompt_request_for_duplicate_mail(clean_text):
         url = "https://openrouter.ai/api/v1/chat/completions"
         headers = {
-            "Authorization": "Bearer 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",
+            "Authorization": "Bearer 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",
             "Content-Type": "application/json",
         }
 
@@ -302,7 +300,7 @@ if __name__ == "__main__":
     processor = EmailProcessor()
     email = processor.extract_email_content('adjustment_reallocation.eml')
     processor.print_email_content()
-    processor.check_duplicate_mail_or_new_request()
+    # processor.check_duplicate_mail_or_new_request()
     result = processor.call_openrouter_deepseek(email['body'])
     print("Classification Result:", result)
   
