@@ -50,7 +50,6 @@ if page == "Email Classification":
 
                 if st.button("Create Service Request"):
                     st.session_state['service_request'] = True
-                    st.experimental_rerun()
 
 elif page == "Service Request Form":
     classification_result = st.session_state.get('classification_result', {})
@@ -70,4 +69,3 @@ elif page == "Service Request Form":
 
     if st.button("Submit Service Request"):
         st.success("Service request submitted successfully!")
-        st.experimental_rerun()
